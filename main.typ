@@ -1,6 +1,15 @@
-#import "../utils/typ/strfmt.typ": strfmt
-#import "../utils/typ/simplify_name.typ": simplify_name
+#import "utils/strfmt.typ": strfmt
 #let metadata = json("metadata.json")
+#let simplify_name(name: str, count: int) = {
+	let words = name.split(" ")
+	let revWords = words.rev()
+	let abbr = ()
+	for word in revWords.slice(0, count) {
+		abbr.push(word.at(0))
+	}
+	let res = abbr.map(it => it + ".")
+	return (res + revWords.slice(count, revWords.len())).rev().join(" ")
+}
 
 #set text(
 	font: "Times New Roman",
@@ -67,17 +76,15 @@ Telah memenuhi syarat untuk menyusun Tugas Akhir. untuk itu kami mengajukan calo
 			align: start,
 			column-gutter: (6.25em, 0.25em),
 			row-gutter: 0.75em,
-			..metadata
-				.lecture
-				.thesis_supervisor
+			..(metadata.lecture.thesis_supervisor,)
 				.enumerate(start: 1)
 				.map(((idx, it)) => (
 					"Nama Dosen " + str(idx),
 					":",
 					strfmt(
 						"{0}{1} {2}",
-						if it.prefixes != none { 
-							it.prefixes.join(", ") 
+						if it.prefixes != none {
+							it.prefixes.join(", ") + " "
 						} else {
 							""
 						},
@@ -111,7 +118,7 @@ Atas perhatiannya diucapkan terima kasih.
 			[#align(left)[#strfmt(
 				"{0}{1} {2}",
 				if metadata.lecture.academic_advisor.prefixes != none {
-					metadata.lecture.academic_advisor.prefixes.join(", ")
+					metadata.lecture.academic_advisor.prefixes.join(", ") + " "
 				} else {
 					""
 				},
@@ -129,14 +136,14 @@ Atas perhatiannya diucapkan terima kasih.
 			[Menyetujui,\ Dosen Pembimbing],
 			[#box(height: 3em)],
 			[#strfmt(
-				"{0}{1} {2}", 
-				if metadata.lecture.thesis_supervisor.at(0).prefixes != none {
-					metadata.lecture.thesis_supervisor.prefixes.join(", ")
+				"{0}{1} {2}",
+				if metadata.lecture.thesis_supervisor.prefixes != none {
+					metadata.lecture.thesis_supervisor.prefixes.join(", ") + " "
 				} else {
 					""
-				}, 
-				metadata.lecture.thesis_supervisor.at(0).full_name, 
-				metadata.lecture.thesis_supervisor.at(0).suffixes.join(", ")
+				},
+				metadata.lecture.thesis_supervisor.full_name,
+				metadata.lecture.thesis_supervisor.suffixes.join(", ")
 			)]
 		))),
 		box(width: 100%, align(center, grid(
